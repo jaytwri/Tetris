@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.example.tetrisgame.app","l":"TetrisGame.pair"},{"p":"com.example.tetrisgame.app","l":"TetrisGame.piece"},{"p":"com.example.tetrisgame.app","l":"TetrisGame"}]

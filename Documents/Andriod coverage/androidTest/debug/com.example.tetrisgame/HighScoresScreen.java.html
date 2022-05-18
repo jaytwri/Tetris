@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HighScoresScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.tetrisgame</a> &gt; <span class="el_source">HighScoresScreen.java</span></div><h1>HighScoresScreen.java</h1><pre class="source lang-java linenums">package com.example.tetrisgame;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.tetrisgame.api.api_runner.ApiClientFactory;
+import com.example.tetrisgame.api.api_runner.SlimCallback;
+import com.example.tetrisgame.dto.ScoreDto;
+
+import android.widget.Button;
+
+import java.util.Collections;
+import java.util.Comparator;
+
+<span class="fc" id="L18">public class HighScoresScreen extends AppCompatActivity {</span>
+/**
+    class ScoreComparator implements Comparator&lt;ScoreDto&gt; {
+        @Override
+        public int compare(ScoreDto a, ScoreDto b) {
+            return a.getScore() &lt; b.getScore() ? -1 : a.getScore() == b.getScore() ? 0 : 1;
+        }
+    }
+
+    */
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L32">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L33">        setContentView(R.layout.activity_high_scores);</span>
+<span class="fc" id="L34">        String TAG = HighScoresScreen.class.getSimpleName();</span>
+
+
+<span class="fc" id="L37">        TextView thirdUser = findViewById(R.id.ThirdUser);</span>
+<span class="fc" id="L38">        TextView thirdScore = findViewById(R.id.ThirdScoreBox);</span>
+
+<span class="fc" id="L40">        TextView SecondUser = findViewById(R.id.SecondUser);</span>
+<span class="fc" id="L41">        TextView SecondScore = findViewById(R.id.SecondScoreBox);</span>
+
+<span class="fc" id="L43">        TextView FirstUser = findViewById(R.id.FirstUser);</span>
+<span class="fc" id="L44">        TextView FirstScore = findViewById(R.id.BestScoreBox);</span>
+
+<span class="fc" id="L46">        Button BackButton = findViewById(R.id.ScoresBackButton);</span>
+
+
+/*
+        int best = 23;
+
+
+        String bestScore =  String.valueOf(best);
+        int secondBestScore = 4;
+        int thirdBestScore = 65;
+        FirstScore.setText(bestScore);
+        SecondScore.setText(FirstScore.getText().toString());
+
+
+
+*/
+
+<span class="fc" id="L63">        BackButton.setOnClickListener(view -&gt; {</span>
+<span class="fc" id="L64">            ApiClientFactory.GetScoreApi().getAllScores(</span>
+
+<span class="fc" id="L66">            ).enqueue(</span>
+                    new SlimCallback&lt;&gt;((ScoreDto -&gt; {
+<span class="fc" id="L68">                        int bestScore = 0;</span>
+<span class="fc" id="L69">                        int secondBestScore = 0;</span>
+<span class="fc" id="L70">                        int thirdBestScore = 0;</span>
+
+
+                        String best;
+                        String second;
+                        String third;
+
+<span class="fc" id="L77">                        Collections.sort(ScoreDto, (a, b) -&gt; Integer.compare(a.getScore(), b.getScore()));</span>
+
+
+<span class="fc" id="L80">                        thirdBestScore = ScoreDto.get(ScoreDto.size()-3).getScore();</span>
+<span class="fc" id="L81">                        third = String.valueOf(thirdBestScore);</span>
+
+                        //thirdUser.setText(ScoreDto.get(2).getUser().getUsername());
+
+<span class="fc" id="L85">                        secondBestScore = ScoreDto.get(ScoreDto.size()-2).getScore();</span>
+<span class="fc" id="L86">                        second = String.valueOf(secondBestScore);</span>
+
+
+<span class="fc" id="L89">                        bestScore = ScoreDto.get(ScoreDto.size()-1).getScore();</span>
+<span class="fc" id="L90">                        best = String.valueOf(bestScore);</span>
+
+
+
+
+
+
+
+
+
+                        // FirstUser.setText(second);
+
+
+<span class="fc" id="L103">                        thirdScore.setText(best);</span>
+<span class="fc" id="L104">                        SecondScore.setText(second);</span>
+<span class="fc" id="L105">                        FirstScore.setText(third);</span>
+
+<span class="fc" id="L107">                        FirstUser.setText(ScoreDto.get(ScoreDto.size()-3).getUser().getUsername());</span>
+<span class="fc" id="L108">                        SecondUser.setText(ScoreDto.get(ScoreDto.size()-2).getUser().getUsername());</span>
+<span class="fc" id="L109">                        thirdUser.setText(ScoreDto.get(ScoreDto.size()-1).getUser().getUsername());</span>
+
+
+                        //  SecondUser.setText(ScoreDto.get(1).getUser().getUsername().toString());
+                        //  SecondScore.setText(secondBestScore);
+
+                        //  thirdUser.setText(ScoreDto.get(2).getUser().getUsername());
+                        // thirdScore.setText(thirdBestScore);
+/**
+
+                        for (int i = 0; i &lt; ScoreDto.size(); i++) {
+                            if (ScoreDto.get(i).getScore() &gt;= bestScore) {
+                                third = String.valueOf(thirdBestScore);
+                                thirdBestScore = secondBestScore;
+                                second = String.valueOf(secondBestScore);
+                                secondBestScore = bestScore;
+                                best =  String.valueOf(bestScore);
+                                bestScore = ScoreDto.get(i).getScore();
+
+                                thirdUser.setText(SecondUser.getText().toString());
+                                thirdScore.setText(third);
+
+                                SecondUser.setText(FirstUser.getText().toString());
+                                SecondScore.setText(second);
+
+                                FirstUser.setText(ScoreDto.get(i).getUser().getUsername());
+                                FirstScore.setText(best);
+
+
+                            }
+                            else if (ScoreDto.get(i).getScore() &gt;= secondBestScore){
+                                third = String.valueOf(thirdBestScore);
+                                thirdBestScore = secondBestScore;
+                                second = String.valueOf(secondBestScore);
+                                secondBestScore = ScoreDto.get(i).getScore();
+
+                                thirdUser.setText(SecondUser.getText().toString());
+                                thirdScore.setText(third);
+
+                                SecondUser.setText(ScoreDto.get(i).getUser().getUsername());
+                                SecondScore.setText(second);
+                            }
+
+                            else if (ScoreDto.get(i).getScore() &gt;= thirdBestScore){
+                                third = String.valueOf(thirdBestScore);
+                                thirdBestScore = ScoreDto.get(i).getScore();
+
+                                thirdUser.setText(ScoreDto.get(i).getUser().getUsername());
+                                thirdScore.setText(third);
+
+
+                            }
+
+
+                        }
+*/
+<span class="fc" id="L165">                    }), &quot;GetAllScores&quot;));</span>
+<span class="fc" id="L166">        });</span>
+
+
+
+        //BackButton.setOnClickListener(view -&gt; startActivity(new Intent(view.getContext(), MainActivity.class)));
+
+
+               /*
+               .enqueue(
+                new SlimCallback&lt;&gt;((scoreDto-&gt; {
+                    loginResponse.setText(&quot;Logged In! Token : &quot; + tokenDto.getToken() + &quot;Password : &quot; + passwordField.getText().toString());
+                    LoginSession.getInstance()
+                            .setToken(tokenDto.getToken());
+                }))
+        );
+
+                */
+<span class="fc" id="L183">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>Generated by the Android Gradle plugin 7.1.2</div></body></html>

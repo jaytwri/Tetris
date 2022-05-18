@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TetrisGame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.tetrisgame.app</a> &gt; <span class="el_source">TetrisGame.java</span></div><h1>TetrisGame.java</h1><pre class="source lang-java linenums">package com.example.tetrisgame.app;
+
+
+
+import com.example.tetrisgame.dto.BoardStateDto;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+public class TetrisGame
+{
+
+    public pair[][] board;
+    public piece fallingPiece;
+<span class="pc" id="L15">    public piece defaultPiece = new piece('D');</span>
+    public boolean lPress;
+    public boolean rPress;
+    public boolean uPress;
+<span class="pc" id="L19">    private final int width = 10;</span>
+<span class="pc" id="L20">    private final int height = 20;</span>
+<span class="pc" id="L21">    public int score = 0;</span>
+<span class="pc" id="L22">    public int movedLast = 0;</span>
+
+<span class="nc" id="L24">    public TetrisGame(BoardStateDto boardState){</span>
+<span class="nc" id="L25">        board = new pair[10][20];</span>
+<span class="nc" id="L26">        fallingPiece = new TetrisGame.piece(boardState.getFallingType());</span>
+<span class="nc" id="L27">        pair[] pairs = new pair[4];</span>
+<span class="nc" id="L28">        int[][] p = boardState.getFallingPairs();</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        for(int i = 0; i &lt; 4; i++){</span>
+<span class="nc" id="L30">            pairs[i] = new pair(p[i][0], p[i][1]);</span>
+        }
+<span class="nc" id="L32">        fallingPiece.setPairs(pairs);</span>
+<span class="nc" id="L33">        boolean[][] b = boardState.getBoard();</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        for(int i = 0; i &lt; width; i++){</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            for(int j = 0; j &lt; height; j++){</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">                if (b[i][j]) board[i][j] = new pair(i, j);</span>
+            }
+        }
+<span class="nc" id="L40">    }</span>
+
+    public TetrisGame()
+<span class="fc" id="L43">    {</span>
+<span class="fc" id="L44">        board = new pair[10][20];</span>
+<span class="fc" id="L45">        Random rand = new Random();</span>
+
+<span class="fc" id="L47">        int randPiece = rand.nextInt(7);</span>
+<span class="pc bpc" id="L48" title="6 of 8 branches missed.">        switch(randPiece)</span>
+        {
+            case 0:
+<span class="nc" id="L51">                fallingPiece = new piece('I');</span>
+
+<span class="nc" id="L53">                break;</span>
+            case 1:
+<span class="nc" id="L55">                fallingPiece = new piece('L');</span>
+
+<span class="nc" id="L57">                break;</span>
+            case 2:
+<span class="fc" id="L59">                fallingPiece = new piece('J');</span>
+
+<span class="fc" id="L61">                break;</span>
+            case 3:
+<span class="nc" id="L63">                fallingPiece = new piece('S');</span>
+
+<span class="nc" id="L65">                break;</span>
+            case 4:
+<span class="fc" id="L67">                fallingPiece = new piece('Z');</span>
+
+<span class="fc" id="L69">                break;</span>
+            case 5:
+<span class="nc" id="L71">                fallingPiece = new piece('T');</span>
+
+<span class="nc" id="L73">                break;</span>
+            case 6:
+<span class="nc" id="L75">                fallingPiece = new piece('O');</span>
+        }
+
+<span class="fc" id="L78">    }</span>
+
+
+    public void clearLines()
+    {
+<span class="fc" id="L83">        int highestPair = fallingPiece.pairs[0].y;</span>
+<span class="fc" id="L84">        int lowestPair = fallingPiece.pairs[0].y;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for(int i = 1; i &lt; fallingPiece.pairs.length; i++)</span>
+        {
+<span class="fc" id="L87">            highestPair = Math.min(highestPair, fallingPiece.pairs[i].y);</span>
+<span class="fc" id="L88">            lowestPair = Math.max(lowestPair, fallingPiece.pairs[i].y);</span>
+        }
+
+<span class="fc" id="L91">        ArrayList&lt;Integer&gt; clearedLines = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for(int i = highestPair; i &lt;= lowestPair; i++)</span>
+        {
+<span class="fc" id="L95">            boolean lineClear = true;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            for(int j = 0; j &lt; width; j++)</span>
+            {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                if(board[j][i] == null)</span>
+<span class="fc" id="L99">                    lineClear = false;</span>
+            }
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">            if(lineClear)</span>
+            {
+<span class="nc" id="L103">                clearedLines.add(i);</span>
+
+            }
+        }
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if(clearedLines.size() &gt; 0) {</span>
+<span class="nc" id="L108">            int linesCleared = 0;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (int i = clearedLines.size() - 1; i &gt;= 0; i--) {</span>
+
+<span class="nc" id="L111">                int row = clearedLines.get(i);</span>
+                //clearing a line moves subsequent lines down by 1 which could include lines which need
+                //to be cleared so clear the index of the row + how many rows we have cleared so far
+<span class="nc" id="L114">                clearRow(row + linesCleared);</span>
+<span class="nc" id="L115">                linesCleared++;</span>
+            }
+        }
+
+
+
+
+<span class="fc" id="L122">        score += (100 * Math.pow(clearedLines.size(), 2));</span>
+<span class="fc" id="L123">    }</span>
+
+    private void clearRow(int rowInd)
+    {
+        //clear the line
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        for(int col = 0; col &lt; 10; col++)</span>
+        {
+<span class="nc" id="L130">            board[col][rowInd] = null;</span>
+        }
+        //move everything above down one
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for(int i = rowInd; i &gt; 0; i--)</span>
+        {
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            for(int j = 0; j &lt; 10; j++)</span>
+            {
+<span class="nc" id="L137">                board[j][i] = board[j][i-1];</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                if(board[j][i] != null)</span>
+<span class="nc" id="L139">                    board[j][i].setY(i-1);</span>
+            }
+        }
+
+<span class="nc" id="L143">    }</span>
+
+    /*
+    public void clearLines()
+    {
+        int highestPair = fallingPiece.pairs[0].y;
+        int lowestPair = fallingPiece.pairs[0].y;
+        for(int i = 1; i &lt; fallingPiece.pairs.length; i++)
+        {
+            highestPair = Math.min(highestPair, fallingPiece.pairs[i].y);
+            lowestPair = Math.max(lowestPair, fallingPiece.pairs[i].y);
+        }
+
+        ArrayList&lt;Integer&gt; clearedLines = new ArrayList&lt;&gt;();
+
+        for(int i = highestPair; i &lt;= lowestPair; i++)
+        {
+            boolean lineClear = true;
+            for(int j = 0; j &lt; width; j++)
+            {
+                if(board[j][i] == null)
+                    lineClear = false;
+            }
+            if(lineClear)
+            {
+                clearedLines.add(i);
+            }
+        }
+
+        for(int i = 0; i &lt; clearedLines.size(); i++)
+        {
+            int row = clearedLines.get(i);
+            for(int col = 0; col &lt; 10; col++)
+            {
+                board[col][row] = null;
+            }
+        }
+
+        //move the above pieces down to fill the space
+        if(clearedLines.size() &gt; 0) {
+            for (int i = 0; i &lt; 20 - clearedLines.size(); i++) {
+                for (int j = 0; j &lt; 10; j++) {
+                    if(board[j][i] != null) {
+                        board[j][i].setY(i + clearedLines.size());
+                        board[j][i] = board[j][i + clearedLines.size()];
+                    }
+                }
+            }
+        }
+        score += (100 * Math.pow(clearedLines.size(), 2));
+
+    }
+*/
+    public void setLPress(boolean b)
+    {
+<span class="fc" id="L198">        lPress = b;</span>
+<span class="fc" id="L199">    }</span>
+    public void setRPress(boolean b)
+    {
+<span class="fc" id="L202">        rPress = b;</span>
+<span class="fc" id="L203">    }</span>
+    public void setUPress(boolean b)
+    {
+<span class="fc" id="L206">        uPress = b;</span>
+<span class="fc" id="L207">    }</span>
+
+
+    public void placePair(pair p)
+    {
+<span class="fc" id="L212">        board[p.getX()][p.getY()] = p;</span>
+<span class="fc" id="L213">    }</span>
+
+    public boolean canPlacePiece(piece p)
+    {
+<span class="fc" id="L217">        pair[] pairs = p.getPairs();</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        for(int i = 0; i &lt; pairs.length; i++)</span>
+        {
+<span class="pc bpc" id="L220" title="2 of 8 branches missed.">            if(pairs[i].getX() &gt;= 0 &amp;&amp; pairs[i].getX() &lt; 10 &amp;&amp; pairs[i].getY() &gt;= 0 &amp;&amp; pairs[i].getY() &lt; 20)</span>
+            {
+<span class="fc bfc" id="L222" title="All 2 branches covered.">                if (board[pairs[i].getX()][pairs[i].getY()] != null)</span>
+<span class="fc" id="L223">                    return false;</span>
+            }
+            else
+            {
+<span class="fc" id="L227">                return false;</span>
+            }
+        }
+<span class="fc" id="L230">        return true;</span>
+    }
+
+
+//removes the given piece from the board useful for moving the falling piece around
+    public void removePiece(piece p)
+    {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+        {
+<span class="fc" id="L239">            board[p.getPairs()[i].getX()][p.getPairs()[i].getY()] = null;</span>
+        }
+<span class="fc" id="L241">    }</span>
+
+    public boolean spawnPiece()
+    {
+
+<span class="fc" id="L246">        Random rand = new Random();</span>
+
+<span class="fc" id="L248">        int randPiece = rand.nextInt(7);</span>
+<span class="pc bpc" id="L249" title="2 of 8 branches missed.">        switch(randPiece)</span>
+        {
+            case 0:
+<span class="fc" id="L252">                fallingPiece = new piece('I');</span>
+
+<span class="fc" id="L254">                break;</span>
+            case 1:
+<span class="fc" id="L256">                fallingPiece = new piece('L');</span>
+
+<span class="fc" id="L258">                break;</span>
+            case 2:
+<span class="fc" id="L260">                fallingPiece = new piece('J');</span>
+
+<span class="fc" id="L262">                break;</span>
+            case 3:
+<span class="fc" id="L264">                fallingPiece = new piece('S');</span>
+
+<span class="fc" id="L266">                break;</span>
+            case 4:
+<span class="nc" id="L268">                fallingPiece = new piece('Z');</span>
+
+<span class="nc" id="L270">                break;</span>
+            case 5:
+<span class="fc" id="L272">                fallingPiece = new piece('T');</span>
+
+<span class="fc" id="L274">                break;</span>
+            case 6:
+<span class="fc" id="L276">                fallingPiece = new piece('O');</span>
+        }
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        if(canPlacePiece(fallingPiece))</span>
+        {
+<span class="fc" id="L281">            pair[] pairs = fallingPiece.getPairs();</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">            for(int i = 0; i &lt; pairs.length; i++)</span>
+            {
+<span class="fc" id="L284">                placePair(pairs[i]);</span>
+            }
+<span class="fc" id="L286">            return true;</span>
+        }
+<span class="fc" id="L288">        else return false;</span>
+    }
+//places a piece on the board takes 2 pieces p is the new p you are placing and o was the original
+    //not always 2 different pieces
+    public piece placePiece(piece p, piece o)
+    {
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        if(canPlacePiece(p))</span>
+        {
+<span class="fc" id="L296">            pair[] pairs = p.getPairs();</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">            for(int i = 0; i &lt; pairs.length; i++)</span>
+            {
+<span class="fc" id="L299">                placePair(pairs[i]);</span>
+            }
+<span class="fc" id="L301">            return p;</span>
+        }
+        else {
+<span class="fc" id="L304">            pair[] pairs = o.getPairs();</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">            for(int i = 0; i &lt; pairs.length; i++)</span>
+            {
+<span class="fc" id="L307">                placePair(pairs[i]);</span>
+            }
+<span class="fc" id="L309">            return o;</span>
+        }
+    }
+
+
+    public class piece
+    {
+<span class="fc" id="L316">        private pair[] pairs = new pair[4];</span>
+        private char pieceType;
+        private pair boundingBox;
+        private int orientationX[][];
+        private int orientationY[][];
+<span class="fc" id="L321">        private int rotationState = 0;</span>
+        public piece(char type)
+<span class="fc" id="L323">        {</span>
+<span class="fc" id="L324">            pieceType = type;</span>
+<span class="pc bpc" id="L325" title="1 of 9 branches missed.">            switch(type)</span>
+            {
+                case 'I':
+                    //I
+<span class="fc" id="L329">                    pairs[0] = new pair(5, 0);</span>
+<span class="fc" id="L330">                    pairs[1] = new pair(5, 1);</span>
+<span class="fc" id="L331">                    pairs[2] = new pair(5, 2);</span>
+<span class="fc" id="L332">                    pairs[3] = new pair(5, 3);</span>
+<span class="fc" id="L333">                    boundingBox = new pair(3, 0);</span>
+<span class="fc" id="L334">                    orientationX = new int[][]{{1,0,-1,-2},{-2,-1,0,1},{-1,0,1,2},{2,1,0,-1}};</span>
+<span class="fc" id="L335">                    orientationY = new int[][]{{2,1,0,-1},{1,0,-1,-2},{-2,-1,0,1},{-1,0,1,2}};</span>
+<span class="fc" id="L336">                    break;</span>
+                case 'J':
+                    //J
+<span class="fc" id="L339">                    pairs[0] = new pair(5, 0);</span>
+<span class="fc" id="L340">                    pairs[1] = new pair(5, 1);</span>
+<span class="fc" id="L341">                    pairs[2] = new pair(6, 1);</span>
+<span class="fc" id="L342">                    pairs[3] = new pair(7, 1);</span>
+<span class="fc" id="L343">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L344">                    orientationX = new int[][]{{2,1,0,-1},{0,1,0,-1},{-2,-1,0,1},{0,-1,0,1}};</span>
+<span class="fc" id="L345">                    orientationY = new int[][]{{0,-1,0,1},{2,1,0,-1},{0,1,0,-1},{-2,-1,0,1}};</span>
+<span class="fc" id="L346">                    break;</span>
+                case 'L':
+                    //L
+<span class="fc" id="L349">                    pairs[0] = new pair(5, 0);</span>
+<span class="fc" id="L350">                    pairs[1] = new pair(5, 1);</span>
+<span class="fc" id="L351">                    pairs[2] = new pair(4, 1);</span>
+<span class="fc" id="L352">                    pairs[3] = new pair(3, 1);</span>
+<span class="fc" id="L353">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L354">                    orientationX = new int[][]{{0,-1,0,1},{-2,-1,0,1},{0,1,0,-1},{2,1,0,-1}};</span>
+<span class="fc" id="L355">                    orientationY = new int[][]{{2,1,0,-1},{0,-1,0,1},{-2,-1,0,1},{0,1,0,-1}};</span>
+<span class="fc" id="L356">                    break;</span>
+                case 'O':
+                    //O
+<span class="fc" id="L359">                    pairs[0] = new pair(5, 0);</span>
+<span class="fc" id="L360">                    pairs[1] = new pair(5, 1);</span>
+<span class="fc" id="L361">                    pairs[2] = new pair(6, 1);</span>
+<span class="fc" id="L362">                    pairs[3] = new pair(6, 0);</span>
+<span class="fc" id="L363">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L364">                    break;</span>
+                case 'S':
+                    //S
+<span class="fc" id="L367">                    pairs[0] = new pair(6, 0);</span>
+<span class="fc" id="L368">                    pairs[1] = new pair(5, 0);</span>
+<span class="fc" id="L369">                    pairs[2] = new pair(5, 1);</span>
+<span class="fc" id="L370">                    pairs[3] = new pair(4, 1);</span>
+<span class="fc" id="L371">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L372">                    orientationX = new int[][]{{0,1,0,1},{-2,-1,0,1},{0,-1,0,-1},{2,1,0,-1}};</span>
+<span class="fc" id="L373">                    orientationY = new int[][]{{2,1,0,-1},{0,1,0,1},{-2,-1,0,1},{0,-1,0,-1}};</span>
+<span class="fc" id="L374">                    break;</span>
+                case 'Z':
+                    //Z
+<span class="fc" id="L377">                    pairs[0] = new pair(4, 0);</span>
+<span class="fc" id="L378">                    pairs[1] = new pair(5, 0);</span>
+<span class="fc" id="L379">                    pairs[2] = new pair(5, 1);</span>
+<span class="fc" id="L380">                    pairs[3] = new pair(6, 1);</span>
+<span class="fc" id="L381">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L382">                    orientationX = new int[][]{{2,1,0,-1},{0,-1,0,-1},{-2,-1,0,1},{0,1,0,1}};</span>
+<span class="fc" id="L383">                    orientationY = new int[][]{{0,1,0,1},{2,1,0,-1},{0,-1,0,-1},{-2,-1,0,1}};</span>
+<span class="fc" id="L384">                    break;</span>
+                case 'T':
+                    //T
+<span class="fc" id="L387">                    pairs[0] = new pair(5, 0);</span>
+<span class="fc" id="L388">                    pairs[1] = new pair(4, 1);</span>
+<span class="fc" id="L389">                    pairs[2] = new pair(5, 1);</span>
+<span class="fc" id="L390">                    pairs[3] = new pair(6, 1);</span>
+<span class="fc" id="L391">                    boundingBox = new pair(4, 0);</span>
+<span class="fc" id="L392">                    orientationX = new int[][]{{1,1,0,-1},{-1,1,0,-1},{-1,-1,0,1},{1,-1,0,1}};</span>
+<span class="fc" id="L393">                    orientationY = new int[][]{{1,-1,0,1},{1,1,0,-1},{-1,1,0,-1},{-1,-1,0,1}};</span>
+<span class="fc" id="L394">                    break;</span>
+                case 'D':
+<span class="fc" id="L396">                    pairs[0] = new pair(0, 0);</span>
+<span class="fc" id="L397">                    pairs[1] = new pair(9, 0);</span>
+<span class="fc" id="L398">                    pairs[2] = new pair(0, 19);</span>
+<span class="fc" id="L399">                    pairs[3] = new pair(9, 19);</span>
+            }
+<span class="fc" id="L401">        }</span>
+
+
+        public boolean canMoveDown()
+        {
+<span class="fc" id="L406">            piece p = new piece(pieceType);</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">            for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+            {
+<span class="fc" id="L409">                p.setCord(i, pairs[i].getX(), pairs[i].getY() + 1);</span>
+            }
+<span class="fc" id="L411">            p.setBoundingBox(boundingBox.x, boundingBox.y - 1);</span>
+<span class="fc" id="L412">            removePiece(this);</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">            if(canPlacePiece(p))</span>
+            {
+<span class="fc" id="L415">                placePiece(this, this);</span>
+<span class="fc" id="L416">                return true;</span>
+            }
+            else {
+<span class="fc" id="L419">                placePiece(this, this);</span>
+<span class="fc" id="L420">                return false;</span>
+            }
+        }
+
+        public void setCord(int i, int x, int y)
+        {
+<span class="fc" id="L426">            pairs[i] = new pair(x, y);</span>
+<span class="fc" id="L427">        }</span>
+        public void setBoundingBox(int x, int y)
+        {
+<span class="fc" id="L430">            boundingBox.setX(x);</span>
+<span class="fc" id="L431">            boundingBox.setY(y);</span>
+<span class="fc" id="L432">        }</span>
+//goes pair by pair using the rotate pair function on each
+        public piece rotatePiece()
+        {
+<span class="fc" id="L436">            piece p = new piece(pieceType);</span>
+<span class="fc" id="L437">            p.rotationState = rotationState;</span>
+<span class="fc bfc" id="L438" title="All 2 branches covered.">            for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+            {
+<span class="fc" id="L440">                p.setCord(i, pairs[i].getX(), pairs[i].getY());</span>
+            }
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">            if(pieceType != 'O')</span>
+            {
+
+<span class="fc bfc" id="L445" title="All 2 branches covered.">                for(int i = 0; i &lt; pairs.length; i++)</span>
+                {
+<span class="fc" id="L447">                    p.setCord(i,pairs[i].getX()+orientationX[rotationState][i],pairs[i].getY()+orientationY[rotationState][i]);</span>
+                }
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">                if(rotationState &lt;3)</span>
+                {
+<span class="fc" id="L451">                    rotationState++;</span>
+<span class="fc" id="L452">                    p.rotationState++;</span>
+                }
+                else {
+<span class="nc" id="L455">                    rotationState = 0;</span>
+<span class="nc" id="L456">                    p.rotationState = 0;</span>
+                }
+            }
+<span class="fc" id="L459">            removePiece(this);</span>
+<span class="fc" id="L460">            uPress = false;</span>
+
+<span class="fc" id="L462">            movedLast = 1;</span>
+<span class="fc" id="L463">            return placePiece(p, this);</span>
+
+
+        }
+
+        public piece moveR()
+        {
+<span class="fc" id="L470">            piece p = new piece(pieceType);</span>
+<span class="fc bfc" id="L471" title="All 2 branches covered.">            for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+            {
+<span class="fc" id="L473">                p.setCord(i, pairs[i].getX() + 1, pairs[i].getY());</span>
+            }
+<span class="fc" id="L475">            p.setBoundingBox(boundingBox.x + 1, boundingBox.y);</span>
+<span class="fc" id="L476">            p.rotationState = rotationState;</span>
+<span class="fc" id="L477">            removePiece(this);</span>
+<span class="fc" id="L478">            rPress = false;</span>
+
+<span class="fc" id="L480">            movedLast = 1;</span>
+<span class="fc" id="L481">            return placePiece(p, this);</span>
+        }
+        public piece moveL()
+        {
+<span class="fc" id="L485">            piece p = new piece(pieceType);</span>
+
+<span class="fc bfc" id="L487" title="All 2 branches covered.">            for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+            {
+<span class="fc" id="L489">                p.setCord(i, pairs[i].getX() - 1, pairs[i].getY());</span>
+            }
+<span class="fc" id="L491">            p.setBoundingBox(boundingBox.x - 1, boundingBox.y);</span>
+<span class="fc" id="L492">            p.rotationState = rotationState;</span>
+<span class="fc" id="L493">            removePiece(this);</span>
+<span class="fc" id="L494">            lPress = false;</span>
+<span class="fc" id="L495">            movedLast = 1;</span>
+<span class="fc" id="L496">            return placePiece(p, this);</span>
+        }
+        public piece moveD()
+        {
+<span class="fc" id="L500">            piece p = new piece(pieceType);</span>
+<span class="fc bfc" id="L501" title="All 2 branches covered.">            for(int i = 0; i &lt; p.getPairs().length; i++)</span>
+            {
+<span class="fc" id="L503">                p.setCord(i, pairs[i].getX(), pairs[i].getY() + 1);</span>
+            }
+<span class="fc" id="L505">            p.rotationState = rotationState;</span>
+<span class="fc" id="L506">            p.setBoundingBox(boundingBox.x, boundingBox.y + 1);</span>
+
+<span class="fc" id="L508">            removePiece(this);</span>
+<span class="fc" id="L509">            return placePiece(p, this);</span>
+        }
+
+
+        public pair[] getPairs() {
+<span class="fc" id="L514">            return pairs;</span>
+        }
+<span class="fc" id="L516">        public char getPieceType(){return pieceType;};</span>
+
+        public void setPairs(pair[] pairs) {
+<span class="nc" id="L519">            this.pairs = pairs;</span>
+<span class="nc" id="L520">        }</span>
+    }
+
+    public class pair
+    {
+        private int x;
+        private int y;
+        public pair(int xC, int yC)
+<span class="fc" id="L528">        {</span>
+<span class="fc" id="L529">            x = xC;</span>
+<span class="fc" id="L530">            y = yC;</span>
+<span class="fc" id="L531">        }</span>
+
+        public int getX()
+        {
+<span class="fc" id="L535">            return x;</span>
+        }
+        public int getY()
+        {
+<span class="fc" id="L539">            return y;</span>
+        }
+
+        public void setX(int xC)
+        {
+<span class="fc" id="L544">            x = xC;</span>
+<span class="fc" id="L545">        }</span>
+        public void setY(int yC)
+        {
+<span class="fc" id="L548">            y = yC;</span>
+<span class="fc" id="L549">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>Generated by the Android Gradle plugin 7.1.2</div></body></html>

@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"com.example.tetrisgame.app","c":"LoginSession","l":"getInstance()"},{"p":"com.example.tetrisgame.app","c":"LoginSession","l":"getToken()"},{"p":"com.example.tetrisgame.app","c":"LoginSession","l":"setToken(int)"}]

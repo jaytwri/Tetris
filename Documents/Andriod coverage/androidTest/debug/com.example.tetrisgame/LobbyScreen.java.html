@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LobbyScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.tetrisgame</a> &gt; <span class="el_source">LobbyScreen.java</span></div><h1>LobbyScreen.java</h1><pre class="source lang-java linenums">package com.example.tetrisgame;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.tetrisgame.api.api_runner.ApiClientFactory;
+import com.example.tetrisgame.api.api_runner.SlimCallback;
+import com.example.tetrisgame.app.LoginSession;
+import com.example.tetrisgame.dto.UserDto;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+<span class="fc" id="L31">public class LobbyScreen extends AppCompatActivity {</span>
+
+
+    private WebSocketClient cc;
+
+    Button b1, b2, startGame;
+    EditText e1, e2;
+    TextView t1;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L44">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L45">        setContentView(R.layout.activity_lobby);</span>
+<span class="fc" id="L46">        String TAG = LobbyScreen.class.getSimpleName();</span>
+/**
+        Button CreateLobbyB = findViewById(R.id.CreateLobbyButton);
+        Button Refresh = findViewById(R.id.RefreshButton);
+        Button Join = findViewById(R.id.JoinLobbyButton);
+        TextView First = findViewById(R.id.LobbyBox1);
+        TextView Second = findViewById(R.id.LobbyBox2);
+        TextView joinInput = findViewById(R.id.editTextTextPersonName5);
+        TextView CreateOutput = findViewById(R.id.textView4);
+*/
+<span class="fc" id="L56">        b1 = (Button) findViewById(R.id.b1);</span>
+<span class="fc" id="L57">        b2 = (Button) findViewById(R.id.b2);</span>
+<span class="fc" id="L58">        e2 = (EditText) findViewById(R.id.e2);</span>
+<span class="fc" id="L59">        t1 = (TextView) findViewById(R.id.t1);</span>
+<span class="fc" id="L60">        startGame = findViewById(R.id.Lobby_StartGame);</span>
+
+
+
+
+<span class="fc" id="L65">        startGame.setOnClickListener(view -&gt; startActivity(new Intent(view.getContext(), TetrisMulti.class)));</span>
+
+<span class="fc" id="L67">        b1.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View view) {
+<span class="fc" id="L70">                Draft[] drafts = {</span>
+                        new Draft_6455()
+                };
+
+                /**
+                 * If running this on an android device, make sure it is on the same network as your
+                 * computer, and change the ip address to that of your computer.
+                 * If running on the emulator, you can use localhost.
+                 */
+
+
+
+                //String w = &quot;ws://10.0.2.2:8080/websocket/&quot; + e1.getText().toString();
+<span class="fc" id="L83">                String w = &quot;ws://coms-309-037.class.las.iastate.edu:8080/chat/&quot; + LoginSession.getInstance().getUsername();</span>
+<span class="fc" id="L84">                ArrayList&lt;String&gt; messages = new ArrayList&lt;&gt;();</span>
+
+                try {
+<span class="fc" id="L87">                    Log.d(&quot;Socket:&quot;, &quot;Trying socket&quot;);</span>
+<span class="fc" id="L88">                    cc = new WebSocketClient(new URI(w), (Draft) drafts[0]) {</span>
+                        @Override
+                        public void onMessage(String message) {
+<span class="fc" id="L91">                            Log.d(&quot;&quot;, &quot;run() returned: &quot; + message);</span>
+<span class="fc" id="L92">                            messages.add(message);</span>
+<span class="fc" id="L93">                            String s = &quot;&quot;;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                            for (int i = messages.size() - 1; i &gt; 0; i--) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                                if (i &lt;= messages.size()-12){</span>
+<span class="nc" id="L96">                                    break;</span>
+                                }
+<span class="fc" id="L98">                                s += &quot;\n&quot; + messages.get(i);</span>
+<span class="fc" id="L99">                                t1.setText(s);</span>
+                            }
+
+
+<span class="fc" id="L103">                        }</span>
+
+                        @Override
+                        public void onOpen(ServerHandshake handshake) {
+<span class="fc" id="L107">                            Log.d(&quot;OPEN&quot;, &quot;run() returned: &quot; + &quot;is connecting&quot;);</span>
+<span class="fc" id="L108">                        }</span>
+
+                        @Override
+                        public void onClose(int code, String reason, boolean remote) {
+<span class="nc" id="L112">                            Log.d(&quot;CLOSE&quot;, &quot;onClose() returned: &quot; + reason);</span>
+<span class="nc" id="L113">                        }</span>
+
+                        @Override
+                        public void onError(Exception e) {
+<span class="nc" id="L117">                            Log.d(&quot;Exception:&quot;, e.toString());</span>
+<span class="nc" id="L118">                        }</span>
+                    };
+<span class="nc" id="L120">                } catch (URISyntaxException e) {</span>
+<span class="nc" id="L121">                    Log.d(&quot;Exception:&quot;, e.getMessage().toString());</span>
+<span class="nc" id="L122">                    e.printStackTrace();</span>
+<span class="fc" id="L123">                }</span>
+<span class="fc" id="L124">                cc.connect();</span>
+
+<span class="fc" id="L126">            }</span>
+        });
+
+
+
+<span class="fc" id="L131">        b2.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+                try {
+<span class="nc" id="L135">                    cc.send(e2.getText().toString());</span>
+<span class="nc" id="L136">                } catch (Exception e) {</span>
+<span class="nc" id="L137">                    Log.d(&quot;ExceptionSendMessage:&quot;, e.getMessage().toString());</span>
+<span class="nc" id="L138">                }</span>
+<span class="nc" id="L139">            }</span>
+        });
+
+
+
+/**
+
+
+        final int[] LobbyToken = {0};
+
+        CreateLobbyB.setOnClickListener(view -&gt; ApiClientFactory.GetLobbyApi()
+                .createLobby(
+                        LoginSession.getInstance().getToken()
+                ).enqueue(
+                new SlimCallback&lt;&gt;(LobbyTokenDto -&gt; {
+                    int t = LobbyTokenDto.getLobbyToken();
+                    String text = String.valueOf(t);
+                    CreateOutput.setText(text);
+                    LobbyToken[0] = t;
+                }
+
+                        , &quot;CreateLobby&quot;
+                )
+        ));
+
+        Join.setOnClickListener(view -&gt; ApiClientFactory.GetLobbyApi()
+                .joinLobby(LobbyToken[0], LoginSession.getInstance().getToken())
+                        .enqueue(
+                                new SlimCallback&lt;&gt;(optionalSetUserDto -&gt;{
+                                    
+                                }, &quot;JoinLobby&quot;
+                                )
+                        )
+        );
+
+
+
+        Refresh.setOnClickListener(view -&gt; ApiClientFactory.GetLobbyApi()
+                .getUsers(
+                        LobbyToken[0]
+                ).enqueue(
+                        new SlimCallback&lt;&gt;(UserDto -&gt; {
+                                First.setText(UserDto.get(0).getUsername());
+                                //Second.setText(UserDto.get(1).getUsername());
+
+                        }, &quot;GetUsers&quot;)
+                ));
+
+        */
+<span class="fc" id="L188">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>Generated by the Android Gradle plugin 7.1.2</div></body></html>
